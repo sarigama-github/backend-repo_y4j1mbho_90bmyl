@@ -66,6 +66,98 @@ async def submit_contact(payload: ContactMessage):
     return {"status": "ok", "id": doc_id}
 
 
+# --- Simple AI-like Q&A over curated site content ---
+class ChatRequest(BaseModel):
+    question: str = Field(..., min_length=2, max_length=2000)
+
+class ChatResponse(BaseModel):
+    answer: str
+
+ABOUT = {
+    "mission": "Enable sustainable growth through smart strategy, ethical governance and practical innovation.",
+    "vision": "Clean, green and impact-driven solutions accessible to every organization.",
+    "values": [
+        "Innovation", "Value Addition", "Entrepreneurship", "Networks",
+        "Transdisciplinary Approach", "Impactability", "Creativity", "Extensibility"
+    ],
+    "guiding_teams": [
+        "Corporate Governance", "Risk Management", "Environmental Impact & Sustainability",
+        "Agriculture & Innovation", "Research & Socio-Economic Development", "Technology / Smart Solutions"
+    ]
+}
+
+TEAM = [
+    {"name": "Asha Ndlovu", "role": "Executive Director", "focus": "Strategy • Partnerships • Governance"},
+    {"name": "Kofi Mensah", "role": "Head of Innovation", "focus": "R&D • Prototyping • Venture Building"},
+    {"name": "Lerato Dlamini", "role": "Sustainability Lead", "focus": "Clean • Green • Smart • Sustainable"},
+    {"name": "Michael Okoye", "role": "Technology Director", "focus": "Cloud • Data • Platforms"},
+    {"name": "Zanele Khumalo", "role": "Programs & Impact", "focus": "Monitoring • Evaluation • Impactability"},
+    {"name": "Tariro Chikore", "role": "Community & Networks", "focus": "Stakeholders • Hubs • Ecosystems"},
+]
+
+SERVICES = ABOUT["guiding_teams"]
+
+SUSTAINABILITY = [
+    "Clean energy: solar and hydro integration for businesses",
+    "Plastic-free initiatives and circular economy practices",
+    "Carbon footprint assessments and reduction roadmaps",
+    "Data-driven monitoring and reporting of impact metrics"
+]
+
+
+def answer_question(q: str) -> str:
+    ql = q.lower()
+    # Team
+    if any(w in ql for w in ["team", "who works", "who is on", "members", "people"]):
+        lines = ["Our core team includes:"]
+        for m in TEAM:
+            lines.append(f"- {m['name']} — {m['role']} ({m['focus']})")
+        lines.append("We collaborate with a trusted network of domain experts and partners.")
+        return "\n".join(lines)
+
+    # Mission / Vision / Values
+    if any(w in ql for w in ["mission", "vision", "values", "acronym", "iventice"]):
+        lines = [
+            f"Mission: {ABOUT['mission']}",
+            f"Vision: {ABOUT['vision']}",
+            "Values (iVENTICE): " + ", ".join(ABOUT["values"]),
+        ]
+        return "\n".join(lines)
+
+    # Services / Offerings
+    if any(w in ql for w in ["services", "offer", "what do you do", "capabilities"]):
+        lines = ["We operate through transdisciplinary guiding teams:"]
+        for s in SERVICES:
+            lines.append(f"- {s}")
+        lines.append("Ask for any area to see case studies or engagement models.")
+        return "\n".join(lines)
+
+    # Sustainability / Impact
+    if any(w in ql for w in ["sustainability", "green", "impact", "carbon", "solar", "hydro", "plastic"]):
+        lines = ["How we contribute to sustainability:"] + [f"- {x}" for x in SUSTAINABILITY]
+        return "\n".join(lines)
+
+    # Contact
+    if any(w in ql for w in ["contact", "reach", "email", "call", "schedule"]):
+        return (
+            "You can reach us via the contact form on the site. Share your name, email and a short brief, "
+            "and we will schedule a call."
+        )
+
+    # Default
+    return (
+        "I can help with our mission, services, team and sustainability approach. "
+        "Try asking: 'What services do you offer?' or 'Who is on the iVentice team?'"
+    )
+
+
+@app.post("/chat", response_model=ChatResponse)
+async def chat(req: ChatRequest) -> ChatResponse:
+    """Lightweight, rule-based Q&A grounded in curated About + Team content."""
+    ans = answer_question(req.question)
+    return ChatResponse(answer=ans)
+
+
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8000))
