@@ -87,12 +87,27 @@ ABOUT = {
 }
 
 TEAM = [
-    {"name": "Asha Ndlovu", "role": "Executive Director", "focus": "Strategy • Partnerships • Governance"},
-    {"name": "Kofi Mensah", "role": "Head of Innovation", "focus": "R&D • Prototyping • Venture Building"},
-    {"name": "Lerato Dlamini", "role": "Sustainability Lead", "focus": "Clean • Green • Smart • Sustainable"},
-    {"name": "Michael Okoye", "role": "Technology Director", "focus": "Cloud • Data • Platforms"},
-    {"name": "Zanele Khumalo", "role": "Programs & Impact", "focus": "Monitoring • Evaluation • Impactability"},
-    {"name": "Tariro Chikore", "role": "Community & Networks", "focus": "Stakeholders • Hubs • Ecosystems"},
+    {
+        "name": "Robert Mwangi Gaciri",
+        "role": "Managing Consultant",
+        "email": "robert@iventiceconsultancy.com",
+        "phone": "+254725612230",
+        "bio": "Project Management Professional; MA in Project Planning & Management (University of Nairobi). BA Social Sciences (BSSS, India). TIP2018 Fellow (Hebrew University of Jerusalem). Director/board member at Eshaita Capital Ltd. 20+ years across projects, consultancy, training, social and business enterprises. Managing Consultant at iVentice Consultancy Limited."
+    },
+    {
+        "name": "Levi Nganga Mbugua; PhD",
+        "role": "Research Consultant",
+        "email": "levi@iventiceconsultancy.com",
+        "phone": "+254721666777",
+        "bio": "20+ years in creating, sharing, using and managing knowledge. University lecturer and researcher across social, economic, medical and financial domains. Focused on applying theory to solve real-world problems with strong ethics. Chairman & Academic Team Leader, Department of Statistics and Computing Mathematics, The Technical University of Kenya."
+    },
+    {
+        "name": "Sarah Wanjiru Gachie",
+        "role": "Agriculture and Plant Consultant",
+        "email": "sarah@iventiceconsultancy.com",
+        "phone": "+254717500393",
+        "bio": "Plant Scientist specializing in Plant Pathology. Masters in Plant Science; advanced diploma in epidemiology and preventive medicine (Tel Aviv University, Israel). Exchange student at Okayama University (Japan). BSc Horticulture (JKUAT). Worked on global agricultural projects (Japan, Israel, USA, Kenya) with emphasis on climate change mitigation, SALM practices and indigenous tree planting; currently Project Research Assistant at KALRO; planning PhD in plant physiology."
+    },
 ]
 
 SERVICES = ABOUT["guiding_teams"]
@@ -108,11 +123,12 @@ SUSTAINABILITY = [
 def answer_question(q: str) -> str:
     ql = q.lower()
     # Team
-    if any(w in ql for w in ["team", "who works", "who is on", "members", "people"]):
+    if any(w in ql for w in ["team", "who works", "who is on", "members", "people", "consultant", "managing consultant", "research consultant", "agriculture"]):
         lines = ["Our core team includes:"]
         for m in TEAM:
-            lines.append(f"- {m['name']} — {m['role']} ({m['focus']})")
-        lines.append("We collaborate with a trusted network of domain experts and partners.")
+            line = f"- {m['name']} — {m['role']} | Email: {m['email']} | Phone: {m['phone']}"
+            lines.append(line)
+        lines.append("Ask for any person to see a short bio.")
         return "\n".join(lines)
 
     # Mission / Vision / Values
@@ -136,6 +152,11 @@ def answer_question(q: str) -> str:
     if any(w in ql for w in ["sustainability", "green", "impact", "carbon", "solar", "hydro", "plastic"]):
         lines = ["How we contribute to sustainability:"] + [f"- {x}" for x in SUSTAINABILITY]
         return "\n".join(lines)
+
+    # Person-specific bio lookup
+    for m in TEAM:
+        if any(part.lower() in ql for part in m["name"].split()):
+            return f"{m['name']} — {m['role']}\nBio: {m['bio']}\nEmail: {m['email']} | Phone: {m['phone']}"
 
     # Contact
     if any(w in ql for w in ["contact", "reach", "email", "call", "schedule"]):
